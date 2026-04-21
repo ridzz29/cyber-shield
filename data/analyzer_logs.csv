@@ -1,0 +1,13 @@
+timestamp,type,origin,user_name,user_email,details,risk_score,safe_score,confidence,risk_level
+2026-03-25T05:22:36.054Z,email,website,riddhi,riddhi299@gmail.com,status:completed | risk:8% | safe:92% | Verify your bank account now http://localhost:2906/html/index1.html,8,92,80,low
+2026-03-25T05:23:14.797Z,url,website,riddhi,riddhi299@gmail.com,http://login-paypal-secure.xyz | status:completed | risk:35% | safe:65%,35,65,82,low
+2026-03-25T05:24:20.161Z,url,cursor,riddhi,riddhi299@gmail.com,http://login-paypal-secure.xyz | status:cursor | risk:100%,100,0,85,
+2026-03-25T05:35:19.671Z,apk,website,dutt,dutt@gmail.com,Instagram_mod.apk | source:Play Store | status:completed | risk:39% | safe:61%,39,61,74,low
+2026-03-25T05:54:53.208Z,url,website,dutt,dutt@gmail.com,ScreenRecorderPro_cracked.apk | status:completed | risk:8% | safe:92%,8,92,74,low
+2026-03-25T05:55:17.010Z,apk,website,dutt,dutt@gmail.com,ScreenRecorderPro_cracked.apk | source:Play Store | status:completed | risk:37% | safe:63%,37,63,68,low
+2026-03-25T06:50:56.511Z,apk,website,riddhi,riddhi299@gmail.com,VPN_Unlimited.apk | source:Play Store | status:completed | risk:23% | safe:77%,23,77,62,low
+2026-03-25T07:19:54.247Z,url,website,riddhi,riddhi299@gmail.com,http://free-money-win-now.click | status:completed | risk:22% | safe:78%,22,78,78,low
+2026-03-30T07:15:02.150Z,url,cursor,riddhi,riddhi299@gmail.com,http://update-your-password.info | status:cursor | risk:66%,66,34,70,
+2026-03-30T07:15:29.801Z,url,website,riddhi,riddhi299@gmail.com,http://update-your-password.info | status:completed | risk:27% | safe:73%,27,73,77,low
+2026-03-30T07:17:33.418Z,apk,website,riddhi,riddhi299@gmail.com,BankingSecureUpdate.apk | source:Play Store | status:completed | risk:23% | safe:77%,23,77,62,low
+2026-04-14T17:41:11.113Z,url,website,riddhi,riddhi299@gmail.com,http://localhost:2906/html/index1.html | status:completed | risk:8% | safe:92%,8,92,76,low

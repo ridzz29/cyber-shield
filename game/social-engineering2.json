@@ -1,0 +1,14 @@
+const assets = {
+  "background_digital_noise": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/background_digital_noise_5ef239aa-35ad-41e5-a492-3ae25c914047.webp",
+    "type": "image"
+  },
+  "scanner_icon": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/scanner_icon_99520012-8d34-443d-a414-ad450aa52038.webp",
+    "type": "image"
+  },
+  "logo_phishhunter": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/logo_phishhunter_a1267309-ecf8-4580-b39d-387ac42922f7.webp",
+    "type": "image"
+  }
+};

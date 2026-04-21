@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cy-Bear Challenge</title>
+  <style>
+    :root {
+      --bg1: #183457;
+      --bg2: #2f5f86;
+      --panel: #fdf7ea;
+      --ink: #162132;
+      --left: #1b9c59;
+      --right: #d64545;
+      --sky: #dbeeff;
+      --card-glow: #88b9ff55;
+      --hud: #28466d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 20%, #5f87a6 0%, transparent 35%),
+        radial-gradient(circle at 85% 15%, #7aa48a 0%, transparent 30%),
+        linear-gradient(160deg, var(--bg2), var(--bg1));
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      overflow-x: hidden;
+      position: relative;
+      animation: bgShift 16s ease-in-out infinite alternate;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      pointer-events: none;
+      border-radius: 50%;
+      filter: blur(22px);
+      opacity: .35;
+      z-index: 0;
+      animation: floatOrb 12s ease-in-out infinite;
+    }
+    body::before {
+      width: 240px;
+      height: 240px;
+      background: #7be0ff;
+      left: -40px;
+      top: 8%;
+    }
+    body::after {
+      width: 280px;
+      height: 280px;
+      background: #8dffb2;
+      right: -60px;
+      bottom: 4%;
+      animation-delay: -5s;
+    }
+    .wrap {
+      width: min(1050px, 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 3px solid #ffffff88;
+      box-shadow: 0 16px 45px #00173166;
+      background: #eef6ff;
+      position: relative;
+      z-index: 1;
+    }
+    .head {
+      background: linear-gradient(90deg, var(--hud), #355a89);
+      color: #fff;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .head::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 15%, #ffffff20 45%, transparent 75%);
+      transform: translateX(-110%);
+      animation: scanline 6s linear infinite;
+    }
+    .title { font-size: clamp(22px, 3.5vw, 30px); font-weight: 800; }
+    .sub { opacity: 0.9; font-size: 14px; }
+    .mode-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      background: #ffffff2b;
+      border: 1px solid #ffffff57;
+      width: fit-content;
+    }
+    .hud {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #ffffff24;
+      border: 1px solid #ffffff50;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .hp { display: inline-flex; align-items: center; gap: 8px; }
+    .hp-track {
+      width: 110px;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #ffffff35;
+    }
+    .hp-fill {
+      width: 100%;
+      height: 100%;
+      transition: width .2s ease;
+      background: linear-gradient(90deg, #ff6a6a, #ffd166, #35c57a);
+    }
+    .body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+      padding: 14px;
+      background: linear-gradient(180deg, var(--sky), #f5fff2);
+    }
+    .left, .right {
+      border: 2px solid #ffffff;
+      border-radius: 16px;
+      background: #ffffffba;
+      padding: 12px;
+      min-height: 430px;
+      backdrop-filter: blur(4px);
+    }
+    .bear { font-size: 56px; line-height: 1; margin-bottom: 6px; }
+    .mascot-strip {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 6px;
+    }
+    .talk {
+      border: 2px solid #f0d49d;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 62px;
+      font-weight: 700;
+    }
+    .talk small {
+      display: block;
+      margin-top: 4px;
+      color: #5f6776;
+      font-weight: 500;
+    }
+    .mail {
+      margin-top: 10px;
+      border: 2px dashed #d9b57b;
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 10px;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 6px 18px #0000000d;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .mail:hover { transform: translateY(-2px); box-shadow: 0 10px 22px var(--card-glow); }
+    .mail.dragging { opacity: .6; transform: rotate(-1deg) scale(.99); }
+    .mail h4 { margin: 0 0 8px; font-size: 14px; color: #7f5327; text-transform: uppercase; }
+    .item-box {
+      background: #fff;
+      border: 2px solid #dce8f8;
+      border-radius: 10px;
+      padding: 9px;
+      word-break: break-word;
+      white-space: pre-wrap;
+      font-weight: 800;
+      color: #1d2c42;
+    }
+    .context {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #4a5564;
+      line-height: 1.35;
+    }
+    .bins {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .bin {
+      min-height: 90px;
+      border-radius: 12px;
+      border: 2px solid #d4dbe6;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 800;
+      transition: .15s ease;
+    }
+    .bin.left { color: var(--left); border-color: #8fd2ad; }
+    .bin.right { color: var(--right); border-color: #eea2a2; }
+    .bin.over { transform: translateY(-3px) scale(1.02); background: #eef6ff; box-shadow: 0 10px 22px #8db5ff55; }
+    .bin .emo { display: block; font-size: 30px; margin-bottom: 4px; }
+    .actions {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .left-btn { background: var(--left); color: #fff; }
+    .right-btn { background: var(--right); color: #fff; }
+    .left-btn, .right-btn, .next-btn {
+      transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
+      box-shadow: 0 8px 18px #00000022;
+    }
+    .left-btn:hover, .right-btn:hover, .next-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+    }
+    .next-btn { display: none; width: 100%; margin-top: 8px; background: #304f78; color: #fff; }
+    .legend {
+      background: #fff;
+      border: 2px solid #e1ebf9;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+      color: #3e4b5f;
+      margin-bottom: 10px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stat {
+      background: #fff;
+      border: 2px solid #e1ebf9;
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+      font-weight: 800;
+    }
+    .stat strong { display: block; font-size: 24px; }
+    .log {
+      background: #fff;
+      border: 2px solid #e1ebf9;
+      border-radius: 12px;
+      min-height: 270px;
+      max-height: 270px;
+      overflow: auto;
+      padding: 8px;
+    }
+    .entry {
+      padding: 8px 0;
+      border-bottom: 1px dashed #dde6f3;
+      font-size: 14px;
+      animation: entryIn .25s ease;
+    }
+    .entry:last-child { border-bottom: 0; }
+    .ok { color: #177d45; }
+    .bad { color: #b13636; }
+    .review {
+      margin-top: 10px;
+      background: #fff;
+      border: 2px solid #e1ebf9;
+      border-radius: 12px;
+      padding: 8px;
+      max-height: 220px;
+      overflow: auto;
+      display: none;
+    }
+    .review-item {
+      border-bottom: 1px dashed #dce6f6;
+      padding: 8px 4px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .review-item:last-child { border-bottom: 0; }
+    .review-item.bad {
+      background: #fff6f6;
+      border-radius: 8px;
+    }
+    .review-q {
+      font-weight: 700;
+      color: #22365b;
+      margin-bottom: 3px;
+    }
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: #00000066;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      padding: 14px;
+    }
+    .popup.show { display: flex; }
+    .popup-card {
+      width: min(560px, 100%);
+      background: #fff;
+      border: 2px solid #f2c4c4;
+      border-radius: 14px;
+      box-shadow: 0 20px 44px #00000044;
+      padding: 14px;
+    }
+    .popup-card h3 {
+      margin: 0 0 8px;
+      color: #b03636;
+    }
+    .popup-card p {
+      margin: 6px 0;
+      font-size: 14px;
+      color: #2b3f63;
+    }
+    .popup-btn {
+      margin-top: 10px;
+      width: 100%;
+      background: #304f78;
+      color: #fff;
+    }
+    .pulse-good { animation: pulseGood .34s ease; }
+    .pulse-bad { animation: pulseBad .34s ease; }
+    @keyframes bgShift {
+      0% { background-position: 0% 0%, 100% 0%, 0% 0%; }
+      100% { background-position: 10% 14%, 90% 18%, 100% 100%; }
+    }
+    @keyframes floatOrb {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+    @keyframes scanline {
+      to { transform: translateX(130%); }
+    }
+    @keyframes pulseGood {
+      0% { box-shadow: 0 0 0 0 #15b75f66; }
+      100% { box-shadow: 0 0 0 18px #15b75f00; }
+    }
+    @keyframes pulseBad {
+      0% { box-shadow: 0 0 0 0 #d6454566; }
+      100% { box-shadow: 0 0 0 18px #d6454500; }
+    }
+    @keyframes entryIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 860px) {
+      .body { grid-template-columns: 1fr; }
+      .left, .right { min-height: auto; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="title" id="titleText">Cy-Bear Challenge</div>
+        <div class="sub" id="subText">Drag each item into the correct lane.</div>
+        <div class="mode-chip" id="modeChip">OPS MODE</div>
+      </div>
+      <div class="hud">
+        <div class="pill hp">🛡 Shield
+          <span class="hp-track"><span id="hpFill" class="hp-fill"></span></span>
+          <span id="hpText">100</span>
+        </div>
+        <div class="pill">🧠 Knowledge: <span id="scoreText">0</span></div>
+        <div class="pill">📍 Round <span id="roundText">1</span>/10</div>
+      </div>
+    </div>
+
+    <div class="body">
+      <section class="left">
+        <div class="mascot-strip">
+          <div class="bear" id="bear">🐻‍💻</div>
+        </div>
+        <div class="talk" id="talk">
+          Welcome, Ranger.
+          <small>Inspect carefully before choosing.</small>
+        </div>
+
+        <article class="mail" id="card" draggable="true">
+          <h4 id="cardHeading">Incoming Alert</h4>
+          <div class="item-box" id="itemText">Sample</div>
+          <p class="context" id="contextText"></p>
+        </article>
+
+        <div class="bins">
+          <div class="bin left" id="leftBin" data-choice="left"><div><span class="emo" id="leftEmoji">✅</span><span id="leftLabel">Left</span></div></div>
+          <div class="bin right" id="rightBin" data-choice="right"><div><span class="emo" id="rightEmoji">🎣</span><span id="rightLabel">Right</span></div></div>
+        </div>
+        <div class="actions">
+          <button class="left-btn" id="leftBtn">Left</button>
+          <button class="right-btn" id="rightBtn">Right</button>
+        </div>
+        <button class="next-btn" id="nextBtn">Next</button>
+      </section>
+
+      <aside class="right">
+        <div class="legend" id="legendText"></div>
+        <div class="stats">
+          <div class="stat">🏆 Correct<strong id="correctText">0</strong></div>
+          <div class="stat">🪙 Coins<strong id="pointText">0</strong></div>
+          <div class="stat">🎯 Accuracy<strong id="accuracyText">0%</strong></div>
+        </div>
+        <div class="log" id="log"></div>
+        <div class="review" id="review"></div>
+      </aside>
+    </div>
+  </div>
+  <div class="popup" id="wrongPopup" role="dialog" aria-modal="true" aria-label="Wrong answer detail">
+    <div class="popup-card">
+      <h3>Wrong Answer</h3>
+      <p id="popupCorrect"></p>
+      <p id="popupReason"></p>
+      <button class="popup-btn" id="popupCloseBtn" type="button">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    const GAME_BANK = {
+      url: {
+        mode: "URL OPS",
+        theme: { bg1: "#173f5f", bg2: "#1f6b92", left: "#1caa63", right: "#d34848", panel: "#fff8ee", sky: "#d9efff", hud: "#1f4d6f", glow: "#62a9ff66" },
+        title: "URL Challenge: Cy-Bear Ranger",
+        sub: "Drag each link to Safe or Phish.",
+        cardHeading: "Incoming Link Alert",
+        legend: "<b>Cy-Bear Tips:</b> Watch for lookalike domains, urgency pressure, and suspicious TLDs.",
+        leftLabel: "Safe",
+        rightLabel: "Phish",
+        leftEmoji: "✅",
+        rightEmoji: "🎣",
+        leftDesc: "safe",
+        rightDesc: "phish",
+        tip: "Read domains right to left.",
+        pool: [
+          { item: "https://accounts.google.com/signin", context: "Official sign-in page.", answer: "left", reason: "Official domain and expected path." },
+          { item: "https://g00gle.com/security-check", context: "Urgent warning asks quick login.", answer: "right", reason: "Lookalike domain and urgency cue." },
+          { item: "https://support.microsoft.com/account", context: "Opened manually from bookmark.", answer: "left", reason: "Legitimate service domain." },
+          { item: "http://paypaI-secure-login.work/verify", context: "Demands immediate card verify.", answer: "right", reason: "Lookalike brand with suspicious domain." },
+          { item: "https://university.ac.in/sso/reset-password", context: "Scheduled campus reset.", answer: "left", reason: "Expected institutional domain and context." },
+          { item: "http://198.51.100.24/login/office365", context: "Unknown sender asks mailbox check.", answer: "right", reason: "Raw IP login is high risk." },
+          { item: "https://github.com/login", context: "Normal development workflow.", answer: "left", reason: "Known trusted endpoint." },
+          { item: "https://shop-amazon-security.cam/order-verify", context: "Requests OTP and card details.", answer: "right", reason: "Unofficial domain and credential bait." },
+          { item: "https://www.cloudflare.com/learning/security/what-is-phishing/", context: "Security article link.", answer: "left", reason: "Legitimate educational destination." },
+          { item: "https://login.amazon.com.re-authenticate-user.cn/update", context: "Contains amazon text in subdomain.", answer: "right", reason: "Actual root domain mismatch." }
+        ]
+      },
+      apk: {
+        mode: "APK OPS",
+        theme: { bg1: "#2d3557", bg2: "#4c4f7a", left: "#27a56f", right: "#c23b4a", panel: "#fff7ef", sky: "#e6e9ff", hud: "#33395f", glow: "#9096ff55" },
+        title: "APK Challenge: Cy-Bear Ranger",
+        sub: "Classify each APK package/hash as Safe or Malicious.",
+        cardHeading: "Incoming APK Alert",
+        legend: "<b>Cy-Bear Tips:</b> Brand typos, mod/crack channels, and IOC hash hits are strong malware signals.",
+        leftLabel: "Safe",
+        rightLabel: "Malicious",
+        leftEmoji: "✅",
+        rightEmoji: "☣️",
+        leftDesc: "safe",
+        rightDesc: "malicious",
+        tip: "Check source trust and package naming.",
+        pool: [
+          { item: "com.whatsapp", context: "Installed from Play Store.", answer: "left", reason: "Trusted source and expected package." },
+          { item: "com.whatsap.update", context: "Downloaded from random forum.", answer: "right", reason: "Brand typo and unofficial source." },
+          { item: "com.netflix.mediaclient", context: "Official app update.", answer: "left", reason: "Legitimate package identity." },
+          { item: "com.android.systemupdate.service.pro", context: "Asks to disable Play Protect.", answer: "right", reason: "Defense evasion and fake updater pattern." },
+          { item: "org.signal", context: "Verified release channel.", answer: "left", reason: "Known secure app and valid source." },
+          { item: "com.telegram.plus.hacked", context: "Shared as modified secure build.", answer: "right", reason: "Hacked/mod build distribution risk." },
+          { item: "com.zoom.videomeetings", context: "Installed via corporate MDM.", answer: "left", reason: "Managed trusted deployment." },
+          { item: "com.free.vpn.unlimited.proxy.crack", context: "Premium unlock claim.", answer: "right", reason: "Crack lure and abuse indicators." },
+          { item: "com.microsoft.teams", context: "Official store listing.", answer: "left", reason: "Trusted publisher and package." },
+          { item: "a3d5bf9df4f2e3db9df2126f2d89a7b91ce801d4542d76be8f7d6d0db9b326de", context: "Hash appears in malware IOC feed.", answer: "right", reason: "Known malicious hash indicator." }
+        ]
+      },
+      email: {
+        mode: "EMAIL OPS",
+        theme: { bg1: "#234a6b", bg2: "#2a7b9b", left: "#1ea764", right: "#cf3f58", panel: "#fff7ee", sky: "#d8f4ff", hud: "#1f5f7c", glow: "#66d0ff55" },
+        title: "Email Challenge: Cy-Bear Ranger",
+        sub: "Sort each email sample into Safe or Phishing.",
+        cardHeading: "Incoming Email Alert",
+        legend: "<b>Cy-Bear Tips:</b> Sender domain mismatch, urgent pressure, and direct credential asks are red flags.",
+        leftLabel: "Safe",
+        rightLabel: "Phishing",
+        leftEmoji: "✅",
+        rightEmoji: "🎣",
+        leftDesc: "safe",
+        rightDesc: "phishing",
+        tip: "Trust behavior signals, not branding alone.",
+        pool: [
+          { item: "From: security@microsoft.com | Subject: New sign-in from Chrome", context: "Asks review from official app.", answer: "left", reason: "Expected sender and safe guidance." },
+          { item: "From: support@micr0soft-help.work | Subject: Account Suspended", context: "Demands password plus OTP now.", answer: "right", reason: "Lookalike sender and credential theft pattern." },
+          { item: "From: noreply@github.com | Subject: Dependabot alert", context: "Links to your repository security tab.", answer: "left", reason: "Relevant context from trusted domain." },
+          { item: "From: finance@company-payroll.com | Subject: Verify bank account", context: "Contains login link in body.", answer: "right", reason: "Financial lure with credential prompt." },
+          { item: "From: updates@docusign.com | Subject: Contract review requested", context: "Expected vendor workflow.", answer: "left", reason: "Plausible sender and business context." },
+          { item: "From: admin@crypto-bonus-giveaway.top | Subject: Wallet disabled", context: "Demands seed phrase.", answer: "right", reason: "Sensitive secret request and scam domain." },
+          { item: "From: security@apple.com | Subject: Device added", context: "Suggests checking account settings manually.", answer: "left", reason: "No direct credential trap." },
+          { item: "From: notices@appleid-recovery.net | Subject: Immediate lock notice", context: "Uses shortened verify URL.", answer: "right", reason: "Unofficial domain and panic language." },
+          { item: "From: noreply@google.com | Subject: Monthly storage report", context: "No urgent action required.", answer: "left", reason: "Routine trusted notification." },
+          { item: "From: helpdesk@it-support-alert.click | Subject: VPN cert expired", context: "Attachment asks macro enable.", answer: "right", reason: "Suspicious sender and risky instruction." }
+        ]
+      },
+      password: {
+        mode: "PASSWORD OPS",
+        theme: { bg1: "#2f365f", bg2: "#5b4f92", left: "#26a65c", right: "#bf3f67", panel: "#fff6f1", sky: "#ece8ff", hud: "#403672", glow: "#a18bff55" },
+        title: "Password Challenge: Cy-Bear Ranger",
+        sub: "Classify each password pattern as Strong or Risky.",
+        cardHeading: "Incoming Password Alert",
+        legend: "<b>Cy-Bear Tips:</b> Long unique secrets with entropy are strong; reused or predictable patterns are risky.",
+        leftLabel: "Strong",
+        rightLabel: "Risky",
+        leftEmoji: "🛡️",
+        rightEmoji: "⚠️",
+        leftDesc: "strong",
+        rightDesc: "risky",
+        tip: "Length and uniqueness beat complexity alone.",
+        pool: [
+          { item: "P@ssword123", context: "Reused across multiple accounts.", answer: "right", reason: "Common pattern and reuse exposure." },
+          { item: "Tiger!River$Canvas92", context: "Unique passphrase for one account.", answer: "left", reason: "Long and hard to guess." },
+          { item: "Riddhi@2003", context: "Contains name and birth year.", answer: "right", reason: "Personally guessable." },
+          { item: "violet-plasma!orbit#lane", context: "Stored in password manager.", answer: "left", reason: "High entropy and unique usage." },
+          { item: "Qwerty@12345", context: "Used in enterprise systems.", answer: "right", reason: "Keyboard pattern and common structure." },
+          { item: "D3lt@-F0x!Prism+74", context: "Random and paired with MFA.", answer: "left", reason: "Strong randomized secret." },
+          { item: "Summer2026!", context: "Season-based periodic change.", answer: "right", reason: "Predictable rotation." },
+          { item: "a!Q9$uM2#vR8*L1@tP4", context: "Service-specific and never shared.", answer: "left", reason: "Very high entropy and hygiene." },
+          { item: "CompanyName@123", context: "Suggested for convenience.", answer: "right", reason: "Easy for attackers to guess." },
+          { item: "N3bula!Anchor#Field%77", context: "Distinct per app.", answer: "left", reason: "Long unique password design." }
+        ]
+      },
+      "social-engineering": {
+        mode: "SOCIAL OPS",
+        theme: { bg1: "#224e54", bg2: "#2d7f83", left: "#1da66d", right: "#d44b4b", panel: "#f8fff6", sky: "#daf8f5", hud: "#276a6f", glow: "#76e3d455" },
+        title: "Social Engineering Challenge: Cy-Bear Ranger",
+        sub: "Sort each scenario into Legit or Manipulation.",
+        cardHeading: "Incoming Social Alert",
+        legend: "<b>Cy-Bear Tips:</b> Urgency, authority pressure, secrecy, and off-process requests often indicate manipulation.",
+        leftLabel: "Legit",
+        rightLabel: "Manipulation",
+        leftEmoji: "🤝",
+        rightEmoji: "🎭",
+        leftDesc: "legit",
+        rightDesc: "manipulation",
+        tip: "Verify through known process before acting.",
+        pool: [
+          { item: "Caller says they are IT admin and asks OTP now.", context: "Mentions manager name and urgency.", answer: "right", reason: "Authority plus urgent secret request." },
+          { item: "HR asks policy review from intranet in weekly newsletter.", context: "No secret requested.", answer: "left", reason: "Normal business communication." },
+          { item: "Vendor requests payment account change by phone only.", context: "Refuses written confirmation.", answer: "right", reason: "Payment diversion social-engineering pattern." },
+          { item: "Security team asks ticket ID in existing incident thread.", context: "No credentials requested.", answer: "left", reason: "Expected support follow-up." },
+          { item: "Chat says CEO needs gift cards urgently and secretly.", context: "Display name mismatch.", answer: "right", reason: "Classic BEC manipulation script." },
+          { item: "Facilities asks desk-move confirmation after your request.", context: "Happens in office portal.", answer: "left", reason: "Contextual and process-aligned." },
+          { item: "Courier SMS asks card payment for small fee.", context: "Unknown domain link.", answer: "right", reason: "Smishing payment lure." },
+          { item: "IT broadcast asks everyone to update authenticator app.", context: "Has internal wiki and helpdesk extension.", answer: "left", reason: "Transparent org-wide process." },
+          { item: "New teammate asks production DB password over chat.", context: "No ticket trail.", answer: "right", reason: "Unauthorized secret request." },
+          { item: "Recruiter asks resume through official ATS.", context: "No banking/credential ask.", answer: "left", reason: "Normal recruitment flow." }
+        ]
+      },
+      "incident-response": {
+        mode: "IR OPS",
+        theme: { bg1: "#4c2f4d", bg2: "#7b3b64", left: "#249a6f", right: "#ce3e51", panel: "#fff5f7", sky: "#f8dcf0", hud: "#643453", glow: "#ff8fcb55" },
+        title: "Incident Response Challenge: Cy-Bear Ranger",
+        sub: "Decide Handle Local vs Escalate Incident.",
+        cardHeading: "Incoming Incident Alert",
+        legend: "<b>Cy-Bear Tips:</b> Privileged compromise, multi-system impact, data exposure, and active abuse usually require escalation.",
+        leftLabel: "Handle Local",
+        rightLabel: "Escalate",
+        leftEmoji: "🧯",
+        rightEmoji: "🚨",
+        leftDesc: "handle local",
+        rightDesc: "escalate",
+        tip: "Prioritize blast radius and business impact.",
+        pool: [
+          { item: "One workstation has adware popup; EDR contained immediately.", context: "No privileged access and no spread.", answer: "left", reason: "Limited scope and contained." },
+          { item: "Domain admin logs in from foreign IP and disables sensors.", context: "Multiple servers show anomalies.", answer: "right", reason: "Privileged compromise and broad risk." },
+          { item: "Failed login spike for one mailbox blocked by MFA.", context: "Source IP was blacklisted.", answer: "left", reason: "Mitigated brute-force attempt." },
+          { item: "Finance share encrypted with ransom note.", context: "Spread observed to nearby hosts.", answer: "right", reason: "Active ransomware incident." },
+          { item: "Suspicious attachment opened; sandbox shows benign macro.", context: "No persistence or callback.", answer: "left", reason: "No compromise indicators." },
+          { item: "PII exported from CRM by service account at night.", context: "Volume 20x normal baseline.", answer: "right", reason: "Potential reportable data breach." },
+          { item: "Known malware hash blocked before execution from USB.", context: "Host isolated, no spread.", answer: "left", reason: "Prevented local event." },
+          { item: "Cloud API key leaked publicly and active use detected.", context: "Production write permissions.", answer: "right", reason: "Credential abuse on critical environment." },
+          { item: "Planned VPN maintenance outage restored as scheduled.", context: "No malicious logs.", answer: "left", reason: "Operational issue, not security incident." },
+          { item: "Cross-subsidiary phishing campaign steals credentials.", context: "Filter bypass seen in one hour.", answer: "right", reason: "Coordinated enterprise impact." }
+        ]
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const gameKey = String(params.get("game") || "url").toLowerCase();
+    const cfg = GAME_BANK[gameKey] || GAME_BANK.url;
+
+    const state = {
+      hp: 100,
+      score: 0,
+      correct: 0,
+      points: 0,
+      round: 0,
+      deck: shuffle([...cfg.pool]),
+      locked: false,
+      review: [],
+      startedAt: Date.now()
+    };
+
+    const titleText = document.getElementById("titleText");
+    const subText = document.getElementById("subText");
+    const cardHeading = document.getElementById("cardHeading");
+    const modeChip = document.getElementById("modeChip");
+    const legendText = document.getElementById("legendText");
+    const leftLabel = document.getElementById("leftLabel");
+    const rightLabel = document.getElementById("rightLabel");
+    const leftEmoji = document.getElementById("leftEmoji");
+    const rightEmoji = document.getElementById("rightEmoji");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    const hpFill = document.getElementById("hpFill");
+    const hpText = document.getElementById("hpText");
+    const scoreText = document.getElementById("scoreText");
+    const roundText = document.getElementById("roundText");
+    const correctText = document.getElementById("correctText");
+    const pointText = document.getElementById("pointText");
+    const accuracyText = document.getElementById("accuracyText");
+    const bear = document.getElementById("bear");
+    const talk = document.getElementById("talk");
+    const itemText = document.getElementById("itemText");
+    const contextText = document.getElementById("contextText");
+    const card = document.getElementById("card");
+    const leftBin = document.getElementById("leftBin");
+    const rightBin = document.getElementById("rightBin");
+    const nextBtn = document.getElementById("nextBtn");
+    const log = document.getElementById("log");
+    const review = document.getElementById("review");
+    const wrongPopup = document.getElementById("wrongPopup");
+    const popupCorrect = document.getElementById("popupCorrect");
+    const popupReason = document.getElementById("popupReason");
+    const popupCloseBtn = document.getElementById("popupCloseBtn");
+
+    function applyGameCopy() {
+      titleText.textContent = cfg.title;
+      subText.textContent = cfg.sub;
+      modeChip.textContent = cfg.mode || "OPS MODE";
+      cardHeading.textContent = cfg.cardHeading;
+      legendText.innerHTML = cfg.legend;
+      leftLabel.textContent = cfg.leftLabel;
+      rightLabel.textContent = cfg.rightLabel;
+      leftEmoji.textContent = cfg.leftEmoji || "✅";
+      rightEmoji.textContent = cfg.rightEmoji || "🎣";
+      leftBtn.textContent = `Mark ${cfg.leftLabel}`;
+      rightBtn.textContent = `Mark ${cfg.rightLabel}`;
+    }
+
+    function applyGameTheme() {
+      const t = cfg.theme || {};
+      const root = document.documentElement.style;
+      if (t.bg1) root.setProperty("--bg1", t.bg1);
+      if (t.bg2) root.setProperty("--bg2", t.bg2);
+      if (t.left) root.setProperty("--left", t.left);
+      if (t.right) root.setProperty("--right", t.right);
+      if (t.panel) root.setProperty("--panel", t.panel);
+      if (t.sky) root.setProperty("--sky", t.sky);
+      if (t.hud) root.setProperty("--hud", t.hud);
+      if (t.glow) root.setProperty("--card-glow", t.glow);
+    }
+
+    function getSessionUser() {
+      try {
+        const raw = localStorage.getItem("cyber_user");
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function buildApiUrl(pathname) {
+      const path = String(pathname || "").startsWith("/") ? String(pathname || "") : `/${String(pathname || "")}`;
+      if (window.location.protocol === "file:") {
+        return `http://localhost:2906${path}`;
+      }
+      if (window.location.port && window.location.port !== "2906" && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || "")) {
+        return `http://localhost:2906${path}`;
+      }
+      return path;
+    }
+
+    async function submitScore() {
+      const user = getSessionUser();
+      const email = String(user?.email || "").trim().toLowerCase();
+      if (!email) return;
+
+      const totalQuestions = Math.max(1, state.review.length);
+      const correctCount = state.correct;
+      const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      const durationSeconds = Math.max(0, Math.round((Date.now() - Number(state.startedAt || Date.now())) / 1000));
+      try {
+        await fetch(buildApiUrl("/api/game-score"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userName: user?.name || user?.username || "User",
+            userEmail: email,
+            gameKey,
+            score: state.score,
+            accuracy,
+            correctCount,
+            totalQuestions,
+            durationSeconds
+          })
+        });
+      } catch {
+        // Ignore leaderboard sync failures to keep gameplay uninterrupted.
+      }
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function hud() {
+      hpText.textContent = state.hp;
+      hpFill.style.width = `${state.hp}%`;
+      scoreText.textContent = state.score;
+      correctText.textContent = state.correct;
+      pointText.textContent = state.points;
+      roundText.textContent = Math.min(state.round + 1, cfg.pool.length);
+      const seen = Math.max(1, state.round + (state.locked ? 1 : 0));
+      const acc = Math.round((state.correct / seen) * 100);
+      accuracyText.textContent = `${Math.max(0, Math.min(100, acc))}%`;
+    }
+
+    function current() {
+      return state.deck[state.round];
+    }
+
+    function say(text, small) {
+      talk.innerHTML = text + (small ? `<small>${small}</small>` : "");
+    }
+
+    function addLog(text, ok) {
+      const row = document.createElement("div");
+      row.className = `entry ${ok ? "ok" : "bad"}`;
+      row.textContent = text;
+      log.prepend(row);
+    }
+
+    function draw() {
+      const item = current();
+      if (!item) return finish();
+      itemText.textContent = item.item;
+      contextText.textContent = item.context;
+      nextBtn.style.display = "none";
+      state.locked = false;
+      bear.textContent = "🐻‍💻";
+      say("Inspect this sample before trusting it.", `Tip: ${cfg.tip}`);
+      hud();
+    }
+
+    function judge(choice) {
+      if (state.locked) return;
+      const item = current();
+      if (!item) return;
+      state.locked = true;
+      const ok = choice === item.answer;
+
+      if (ok) {
+        state.score += 12;
+        state.points += 1;
+        state.correct += 1;
+        bear.textContent = "🐻👍";
+        say("Correct call.", `You classified this as ${choice === "left" ? cfg.leftDesc : cfg.rightDesc}.`);
+        addLog(`Round ${state.round + 1}: Correct`, true);
+        card.classList.remove("pulse-bad");
+        card.classList.add("pulse-good");
+      } else {
+        state.hp = Math.max(0, state.hp - 18);
+        state.score = Math.max(0, state.score - 4);
+        bear.textContent = "🐻🛑";
+        say(`Not quite. Correct answer: ${item.answer === "left" ? cfg.leftLabel : cfg.rightLabel}.`, item.reason);
+        addLog(`Round ${state.round + 1}: Missed - ${item.reason}`, false);
+        card.classList.remove("pulse-good");
+        card.classList.add("pulse-bad");
+        showWrongPopup(item);
+      }
+
+      state.review.push({
+        round: state.round + 1,
+        item: item.item,
+        userAnswer: choice,
+        correctAnswer: item.answer,
+        reason: item.reason,
+        ok
+      });
+
+      hud();
+      nextBtn.style.display = "block";
+      if (state.hp === 0) finish();
+    }
+
+    function finish() {
+      state.locked = true;
+      card.style.opacity = ".5";
+      leftBtn.disabled = true;
+      rightBtn.disabled = true;
+      nextBtn.style.display = "none";
+      const tier = state.correct >= 9 ? "Elite Ranger" :
+        state.correct >= 7 ? "Sharp Defender" :
+        state.correct >= 5 ? "Rising Scout" : "Curious Cub";
+      bear.textContent = "🐻🏕️";
+      say(`Mission Complete: ${tier}`, `Score ${state.score} | Correct ${state.correct}/10 | Coins ${state.points}`);
+      renderReview();
+      submitScore();
+
+      const again = document.createElement("button");
+      again.className = "next-btn";
+      again.style.display = "block";
+      again.textContent = "Play Again";
+      again.onclick = () => location.reload();
+      talk.appendChild(document.createElement("br"));
+      talk.appendChild(again);
+    }
+
+    function showWrongPopup(item) {
+      popupCorrect.textContent = `Correct answer: ${item.answer === "left" ? cfg.leftLabel : cfg.rightLabel}`;
+      popupReason.textContent = `Why your answer was wrong: ${item.reason}`;
+      wrongPopup.classList.add("show");
+    }
+
+    function renderReview() {
+      const rows = state.review.map((r) => {
+        const userText = r.userAnswer === "left" ? cfg.leftLabel : cfg.rightLabel;
+        const correctText = r.correctAnswer === "left" ? cfg.leftLabel : cfg.rightLabel;
+        return `
+          <div class="review-item ${r.ok ? "ok" : "bad"}">
+            <div class="review-q">Q${r.round}: ${r.item}</div>
+            <div>Your answer: <b>${userText}</b></div>
+            <div>Correct answer: <b>${correctText}</b></div>
+            ${r.ok ? "" : `<div>Why wrong: ${r.reason}</div>`}
+          </div>
+        `;
+      }).join("");
+      review.innerHTML = rows || "<div class='review-item'>No answers recorded.</div>";
+      review.style.display = "block";
+    }
+
+    card.addEventListener("dragstart", () => {
+      if (state.locked) return;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => card.classList.remove("dragging"));
+
+    [leftBin, rightBin].forEach((bin) => {
+      bin.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        if (!state.locked) bin.classList.add("over");
+      });
+      bin.addEventListener("dragleave", () => bin.classList.remove("over"));
+      bin.addEventListener("drop", (e) => {
+        e.preventDefault();
+        bin.classList.remove("over");
+        judge(bin.dataset.choice);
+      });
+    });
+
+    leftBtn.addEventListener("click", () => judge("left"));
+    rightBtn.addEventListener("click", () => judge("right"));
+    nextBtn.addEventListener("click", () => {
+      state.round += 1;
+      if (state.round >= cfg.pool.length || state.hp === 0) finish();
+      else draw();
+    });
+    popupCloseBtn.addEventListener("click", () => {
+      wrongPopup.classList.remove("show");
+    });
+    wrongPopup.addEventListener("click", (e) => {
+      if (e.target === wrongPopup) wrongPopup.classList.remove("show");
+    });
+
+    applyGameCopy();
+    applyGameTheme();
+    state.startedAt = Date.now();
+    draw();
+  </script>
+</body>
+</html>

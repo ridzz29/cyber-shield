@@ -1,0 +1,58 @@
+{
+  "background_digital_noise": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/background_digital_noise_5ef239aa-35ad-41e5-a492-3ae25c914047.webp",
+    "type": "image",
+    "aspect_ratio": [
+      1024,
+      1024
+    ]
+  },
+  "scanner_icon": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/scanner_icon_99520012-8d34-443d-a414-ad450aa52038.webp",
+    "type": "image",
+    "aspect_ratio": [
+      696,
+      703
+    ]
+  },
+  "ai_assistant_avatar": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/ai_assistant_avatar_93347441-ddfb-4bd6-8909-49eb3c30b20a.webp",
+    "type": "image",
+    "aspect_ratio": [
+      1018,
+      972
+    ]
+  },
+  "logo_phishhunter": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/images/logo_phishhunter_a1267309-ecf8-4580-b39d-387ac42922f7.webp",
+    "type": "image",
+    "aspect_ratio": [
+      1415,
+      765
+    ]
+  },
+  "sound_correct": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/sound_correct_2fbdd02f-c185-435e-a8d4-2579169fbd73.mp3",
+    "type": "audio"
+  },
+  "sound_incorrect": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/sound_incorrect_332495d2-73ee-4b28-8565-b844ea0021c7.mp3",
+    "type": "audio"
+  },
+  "sound_scanner": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/sound_scanner_333e3045-e442-41ef-8fd3-40d5f8c5c645.mp3",
+    "type": "audio"
+  },
+  "sound_level_complete": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/sound_level_complete_85d7b253-c959-4739-83a8-77449dbb6d81.mp3",
+    "type": "audio"
+  },
+  "sound_game_over": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/sound_game_over_0c2b1c0f-2ac6-414a-9b41-84a0ae234268.mp3",
+    "type": "audio"
+  },
+  "music_background": {
+    "url": "https://d2oir5eh8rty2e.cloudfront.net/assets/sounds/effect/music_background_04a00d88-51da-49f5-982c-3f1cc707dc93.mp3",
+    "type": "audio"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "difficulty": {
+    "startingRisk": 0,
+    "riskIncreaseWrong": 15,
+    "riskDecreaseCorrect": 5,
+    "urlsPerLevel": 5,
+    "numberOfLevels": 5
+  },
+  "scoring": {
+    "pointsCorrect": 10,
+    "pointsWrong": -5
+  },
+  "theme": {
+    "primaryColor": "#00ffff",
+    "secondaryColor": "#ff00ff",
+    "backgroundDarkness": 95,
+    "scannerSpeed": "medium"
+  },
+  "ui": {
+    "gameTitle": "PHISHHUNTER PROTOCOL",
+    "aiName": "SENTINEL AI",
+    "safeButtonLabel": "SAFE",
+    "phishingButtonLabel": "PHISHING"
+  }
+}

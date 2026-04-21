@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhishHunter Protocol: Social Engineering Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/url-challenge.css" />
+  </head>
+  <body>
+    <main class="challenge-wrap">
+      <header class="challenge-top">
+        <a class="back-link" href="/?view=dashboard">Dashboard</a>
+        <h1>PhishHunter Protocol: Social Engineering Ops</h1>
+        <div class="kbd-hint">Hotkeys: `A` = Legit Request, `D` = Manipulation</div>
+      </header>
+
+      <section class="hud">
+        <article><p>Score</p><strong id="scoreValue">0</strong></article>
+        <article><p>Question</p><strong id="questionValue">0 / 0</strong></article>
+        <article><p>Streak</p><strong id="streakValue">0</strong></article>
+        <article><p>Protocol Time</p><strong id="timerValue">90s</strong></article>
+        <article><p>Lives</p><strong id="livesValue">3</strong></article>
+        <article><p>Multiplier</p><strong id="multiplierValue">x1.0</strong></article>
+      </section>
+
+      <div class="battle-grid">
+        <aside class="intel-panel">
+          <h2>Threat Intel</h2>
+          <p class="intel-sub">Detect urgency, authority pressure, and trust exploitation patterns.</p>
+          <div id="signalList" class="signal-list"></div>
+          <h3>Operation Log</h3>
+          <div id="missionLog" class="mission-log"></div>
+        </aside>
+
+        <section id="introPanel" class="panel active">
+          <h2>Mission Brief</h2>
+          <p>Classify each human interaction scenario as `Legit` or `Manipulation`.</p>
+          <ul>
+            <li>Correct: +120 x multiplier</li>
+            <li>Wrong: -40 and lose 1 life</li>
+            <li>Streak increases multiplier up to x2.5</li>
+            <li>Run ends on timer, zero lives, or final question</li>
+          </ul>
+          <button id="startBtn" class="btn primary" type="button">Deploy Protocol</button>
+        </section>
+
+        <section id="playPanel" class="panel">
+          <p id="difficultyTag" class="difficulty">Medium</p>
+          <h2 id="promptTitle">Classify this interaction</h2>
+          <code id="scenarioText" class="url-box">-</code>
+          <p id="contextText" class="context">-</p>
+          <div class="choices">
+            <button id="legitBtn" class="btn safe" type="button">Mark Legit</button>
+            <button id="manipulationBtn" class="btn phish" type="button">Flag Manipulation</button>
+          </div>
+          <p id="feedbackText" class="feedback">Choose an option to continue.</p>
+        </section>
+
+        <section id="endPanel" class="panel">
+          <h2>Protocol Complete</h2>
+          <p id="resultSummary">-</p>
+          <div class="result-actions">
+            <button id="restartBtn" class="btn primary" type="button">Run Again</button>
+            <a class="btn ghost" href="/?view=dashboard">Back To Dashboard</a>
+          </div>
+          <h3>After Action Review</h3>
+          <div id="reviewList" class="review-list"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="/game/social-engineering.js"></script>
+  </body>
+</html>

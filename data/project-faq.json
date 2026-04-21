@@ -1,0 +1,224 @@
+{
+  "faq": [
+    {
+      "question": "what is cyber-shield",
+      "answer": "Cyber-Shield is a cybersecurity portal with practical tools and guided secure experience. Protect your data and safeguard your online presence."
+    },
+    {
+      "question": "how to use url analyzer",
+      "answer": "Paste a URL in the URL analyzer form. Click Analyze URL + AI Agent. It runs multi-source checks and AI scoring. See risk score, confidence, and factors."
+    },
+    {
+      "question": "what is url challenge",
+      "answer": "URL Challenge is a learning game. Train on suspicious link patterns and domain signals. Practice identifying phishing links."
+    },
+    {
+      "question": "which game for url",
+      "answer": "URL Challenge"
+    },
+    {
+      "question": "which game should i play to know about url",
+      "answer": "URL Challenge"
+    },
+    {
+      "question": "game for url",
+      "answer": "URL Challenge"
+    },
+    {
+      "question": "how to analyze apk",
+      "answer": "Enter APK package or hash in the APK analyzer. Select source like Play Store or Direct Download. Click Analyze APK + AI Agent. It scans metadata, signatures, and threat intel."
+    },
+    {
+      "question": "what is apk challenge",
+      "answer": "APK Challenge is a learning game. Practice APK triage using package/hash indicators. Learn to spot malware in Android apps."
+    },
+    {
+      "question": "which game for apk",
+      "answer": "APK Challenge"
+    },
+    {
+      "question": "which game should i play to know about apk",
+      "answer": "APK Challenge"
+    },
+    {
+      "question": "game for apk",
+      "answer": "APK Challenge"
+    },
+    {
+      "question": "how to check email",
+      "answer": "Paste email text in the Email analyzer. Click Analyze Email + AI Agent. It identifies phishing intent from headers and message tone."
+    },
+    {
+      "question": "what is email challenge",
+      "answer": "Email Challenge is a learning game. Identify phishing intent from headers and message tone. Practice spotting suspicious emails."
+    },
+    {
+      "question": "which game for email",
+      "answer": "Email Challenge"
+    },
+    {
+      "question": "which game should i play to know about email",
+      "answer": "Email Challenge"
+    },
+    {
+      "question": "game for email",
+      "answer": "Email Challenge"
+    },
+    {
+      "question": "what is password challenge",
+      "answer": "Password Challenge is a learning game. Build strong passphrases and avoid common password attacks. Learn secure password practices."
+    },
+    {
+      "question": "which game for password",
+      "answer": "Password Challenge"
+    },
+    {
+      "question": "which game should i play to know about password",
+      "answer": "Password Challenge"
+    },
+    {
+      "question": "game for password",
+      "answer": "Password Challenge"
+    },
+    {
+      "question": "what is social engineering challenge",
+      "answer": "Social Engineering Challenge is a learning game. Spot manipulation tactics across chat, calls, and messages. Practice recognizing social engineering."
+    },
+    {
+      "question": "which game for social engineering",
+      "answer": "Social Engineering Challenge"
+    },
+    {
+      "question": "which game should i play to know about social engineering",
+      "answer": "Social Engineering Challenge"
+    },
+    {
+      "question": "game for social engineering",
+      "answer": "Social Engineering Challenge"
+    },
+    {
+      "question": "what is incident response challenge",
+      "answer": "Incident Response Challenge is a learning game. Practice first-response actions after suspicious activity alerts. Learn incident response steps."
+    },
+    {
+      "question": "which game for incident response",
+      "answer": "Incident Response Challenge"
+    },
+    {
+      "question": "which game should i play to know about incident response",
+      "answer": "Incident Response Challenge"
+    },
+    {
+      "question": "game for incident response",
+      "answer": "Incident Response Challenge"
+    },
+    {
+      "question": "how to login",
+      "answer": "Go to auth view. Enter registered email and password. Click Login. Access your cyber dashboard with learning resources and Analyzer tools."
+    },
+    {
+      "question": "how to sign up",
+      "answer": "Go to auth view. Click Sign Up. Enter full name, email, and password. Click Sign Up. Create account to access dashboard."
+    },
+    {
+      "question": "what is risk score",
+      "answer": "Risk score is percentage from 0 to 100. Shows overall risk level. Low, medium, or high based on analysis."
+    },
+    {
+      "question": "what is confidence",
+      "answer": "Confidence is percentage showing how sure the analysis is. Based on signal quality from current inputs."
+    },
+    {
+      "question": "how to use support chat",
+      "answer": "Go to Support section. Type question about cybersecurity. Click Ask AI. Get guidance on suspicious links, emails, APKs, or account security."
+    },
+    {
+      "question": "what is leaderboard",
+      "answer": "Leaderboard tracks score progression. Compare rankings and review recent game runs in real time. See total runs, average score, best score."
+    },
+    {
+      "question": "how to play games",
+      "answer": "Go to Learn tab. Click on game cards like URL Challenge or APK Challenge. Play learning games to train on security topics."
+    },
+    {
+      "question": "what is analyzer",
+      "answer": "Analyzer tab has tools for URL, APK, and Email analysis. Run multi-source checks and AI scoring. Get risk analysis with factors."
+    },
+    {
+      "question": "how to check risk factors",
+      "answer": "After analysis, see risk factors section. Lists signals like suspicious words, domain issues, or malware indicators."
+    },
+    {
+      "question": "which game to play for url",
+      "answer": "URL Challenge"
+    },
+    {
+      "question": "game to learn about url",
+      "answer": "URL Challenge"
+    },
+    {
+      "question": "learn url security",
+      "answer": "Play URL Challenge in Learn section"
+    },
+    {
+      "question": "which game to play for apk",
+      "answer": "APK Challenge"
+    },
+    {
+      "question": "game to learn about apk",
+      "answer": "APK Challenge"
+    },
+    {
+      "question": "learn apk security",
+      "answer": "Play APK Challenge in Learn section"
+    },
+    {
+      "question": "which game to play for email",
+      "answer": "Email Challenge"
+    },
+    {
+      "question": "game to learn about email",
+      "answer": "Email Challenge"
+    },
+    {
+      "question": "learn email security",
+      "answer": "Play Email Challenge in Learn section"
+    },
+    {
+      "question": "which game to play for password",
+      "answer": "Password Challenge"
+    },
+    {
+      "question": "game to learn about password",
+      "answer": "Password Challenge"
+    },
+    {
+      "question": "learn password security",
+      "answer": "Play Password Challenge in Learn section"
+    },
+    {
+      "question": "which game to play for social engineering",
+      "answer": "Social Engineering Challenge"
+    },
+    {
+      "question": "game to learn about social engineering",
+      "answer": "Social Engineering Challenge"
+    },
+    {
+      "question": "learn social engineering",
+      "answer": "Play Social Engineering Challenge in Learn section"
+    },
+    {
+      "question": "which game to play for incident response",
+      "answer": "Incident Response Challenge"
+    },
+    {
+      "question": "game to learn about incident response",
+      "answer": "Incident Response Challenge"
+    },
+    {
+      "question": "learn incident response",
+      "answer": "Play Incident Response Challenge in Learn section"
+    }
+  ]
+}

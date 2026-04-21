@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Hunter: Cy-Bear</title>
+  <style>
+    :root {
+      --bg-a: #12203d;
+      --bg-b: #26476d;
+      --card: #fff7ed;
+      --ink: #1d2433;
+      --safe: #1f9d55;
+      --phish: #d64545;
+      --accent: #f5a524;
+      --muted: #5f6b7a;
+      --drop: #e8f2ff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 10% 20%, #5f7ea6 0%, var(--bg-b) 35%, var(--bg-a) 100%);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .game {
+      width: min(1020px, 100%);
+      background: linear-gradient(160deg, #f5efe6, #e7f0ff 60%, #e7ffe8);
+      border: 3px solid #ffffff80;
+      border-radius: 22px;
+      box-shadow: 0 14px 40px #00173555;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 16px 18px;
+      background: linear-gradient(90deg, #243b5e, #2f4b75);
+      color: #fff;
+    }
+
+    .title {
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      opacity: 0.86;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      background: #ffffff26;
+      border: 1px solid #ffffff5a;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .hp-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hp-bar {
+      width: 120px;
+      height: 10px;
+      background: #ffffff2f;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .hp-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #ffd166, #45c486);
+      transition: width 220ms ease;
+    }
+
+    .main {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+    }
+
+    .scene, .board {
+      background: #ffffffa8;
+      border: 2px solid #ffffff;
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 420px;
+    }
+
+    .cybear {
+      font-size: 68px;
+      filter: drop-shadow(0 6px 5px #00000025);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .bubble {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      border: 2px solid #f5d9a1;
+      min-height: 68px;
+      font-weight: 700;
+    }
+
+    .bubble small {
+      display: block;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .mail {
+      margin-top: 12px;
+      background: var(--card);
+      border: 2px dashed #d7b98f;
+      border-radius: 14px;
+      padding: 12px;
+      cursor: grab;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .mail.dragging {
+      opacity: 0.62;
+      transform: rotate(-1deg);
+    }
+
+    .mail-h {
+      font-size: 13px;
+      color: #6a4a17;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mail p {
+      margin: 5px 0;
+      line-height: 1.35;
+    }
+
+    .mail .meta {
+      color: #655f56;
+      font-size: 13px;
+    }
+
+    .bins {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .bin {
+      border: 2px solid #d5dce5;
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 800;
+      min-height: 92px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      transition: 120ms ease;
+    }
+
+    .bin span {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .bin.safe { color: var(--safe); border-color: #8bd4aa; }
+    .bin.phish { color: var(--phish); border-color: #f3a2a2; }
+    .bin.over { transform: translateY(-3px); background: var(--drop); }
+
+    .controls {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-safe { background: #1f9d55; color: #fff; }
+    .btn-phish { background: #d64545; color: #fff; }
+    .btn-next {
+      margin-top: 10px;
+      width: 100%;
+      background: #2f4b75;
+      color: #fff;
+      display: none;
+    }
+
+    .legend {
+      background: #fff;
+      border: 2px solid #e2ebf8;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: #364153;
+    }
+
+    .score-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mini {
+      background: #fff;
+      border: 2px solid #e6edf8;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 24px;
+      margin-top: 2px;
+    }
+
+    .log {
+      background: #fff;
+      border: 2px solid #e6edf8;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 260px;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .entry {
+      border-bottom: 1px dashed #dde5f3;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .entry:last-child { border: 0; }
+    .ok { color: #177c45; }
+    .bad { color: #b13232; }
+
+    .coin {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      font-size: 28px;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+    .coin.pop {
+      animation: coinPop 600ms ease;
+    }
+    @keyframes coinPop {
+      0% { opacity: 0; transform: translateY(24px) scale(0.7); }
+      35% { opacity: 1; transform: translateY(-2px) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-24px) scale(1); }
+    }
+
+    @media (max-width: 860px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+      .scene, .board {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="topbar">
+      <div>
+        <div class="title">🐻 Phishing Hunter: Cy-Bear Patrol</div>
+        <div class="subtitle">Drag each digital mail into <b>Safe</b> or <b>Phish</b>.</div>
+      </div>
+      <div class="stats">
+        <div class="pill hp-wrap">
+          🛡 Shield
+          <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+          <span id="hpText">100</span>
+        </div>
+        <div class="pill">🧠 Score: <span id="scoreText">0</span></div>
+        <div class="pill">🧩 Round: <span id="roundText">1</span>/10</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <section class="scene">
+        <div class="cybear" id="cybearFace">🐻‍💻</div>
+        <div class="bubble" id="feedback">
+          Welcome, Ranger! Sort these messages and keep our Digital Forest safe.
+          <small>Tip: urgency + weird links + lookalike domains = danger combo.</small>
+        </div>
+
+        <article class="mail" id="mailCard" draggable="true">
+          <div class="mail-h">📬 Digital Mail</div>
+          <p><b>From:</b> <span id="mailFrom"></span></p>
+          <p><b>Subject:</b> <span id="mailSubject"></span></p>
+          <p><b>Message:</b> <span id="mailBody"></span></p>
+          <p class="meta"><b>Link:</b> <span id="mailLink"></span></p>
+        </article>
+
+        <div class="bins">
+          <div class="bin safe" data-choice="safe" id="safeBin">
+            <div><span>✅</span>Safe Bin</div>
+          </div>
+          <div class="bin phish" data-choice="phish" id="phishBin">
+            <div><span>🎣</span>Phish Bin</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn-safe" id="safeBtn">Mark Safe</button>
+          <button class="btn-phish" id="phishBtn">Mark Phish</button>
+        </div>
+        <button class="btn-next" id="nextBtn">Next Mail</button>
+      </section>
+
+      <aside class="board">
+        <div class="legend">
+          <b>Cy-Bear Rulebook:</b> Trust, but verify. Hover over sender names, read URLs slowly, and never panic-click.
+        </div>
+        <div class="score-box">
+          <div class="mini">🏆 Correct<strong id="correctText">0</strong></div>
+          <div class="mini">🪙 Coins<strong id="coinText">0</strong></div>
+        </div>
+        <div class="log" id="log"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="coin" id="coinFx">🪙 +1</div>
+
+  <script>
+    const scenarios = [
+      {
+        from: "Prince Kofi <royalgrant@wealth-transfer-now.biz>",
+        subject: "URGENT: $8,000,000 waiting for you",
+        body: "Dearest friend, send your bank details now to unlock your fortune.",
+        link: "http://quick-bank-release.biz/claim",
+        answer: "phish",
+        redFlag: "Classic advance-fee scam. Money promises + urgency + shady domain."
+      },
+      {
+        from: "Google Security <no-reply@g00gle.com>",
+        subject: "Password reset requested",
+        body: "Unusual sign-in from new device. Confirm now to avoid lockout.",
+        link: "https://g00gle.com/account/recover",
+        answer: "phish",
+        redFlag: "Lookalike domain. 'g00gle' uses zeros, not O's."
+      },
+      {
+        from: "School Portal <notices@school.edu>",
+        subject: "Parent meeting schedule updated",
+        body: "Agenda and timing details have been posted in your official portal.",
+        link: "https://portal.school.edu/meetings",
+        answer: "safe",
+        redFlag: "Legit sender/domain match and no pressure tactic."
+      },
+      {
+        from: "ShipFast <alerts@shipfast-track.co>",
+        subject: "Package delayed: pay ₹49 customs fee now",
+        body: "Failure to pay in 2 hours will return your parcel.",
+        link: "http://shipfast-pay-now.co/fee",
+        answer: "phish",
+        redFlag: "Fake delivery pressure + tiny fee trick + non-official payment link."
+      },
+      {
+        from: "HR Team <hr@forestlabs.io>",
+        subject: "Updated holiday calendar",
+        body: "Please review the updated company holiday list in the HR portal.",
+        link: "https://intranet.forestlabs.io/hr/calendar",
+        answer: "safe",
+        redFlag: "Internal domain, expected context, no credential request."
+      },
+      {
+        from: "App Store Billing <billing@appIe.com>",
+        subject: "Your subscription failed",
+        body: "We need your card details now to prevent account suspension.",
+        link: "https://appie.com/billing-update",
+        answer: "phish",
+        redFlag: "Impersonation trick: 'appIe' uses uppercase I to mimic 'l'."
+      },
+      {
+        from: "Bank Alert <alerts@yourbank.com>",
+        subject: "Monthly statement ready",
+        body: "Your e-statement is available. Log in from your banking app or website.",
+        link: "https://yourbank.com/statements",
+        answer: "safe",
+        redFlag: "No panic language, no data request, expected banking action."
+      },
+      {
+        from: "Office 365 Team <security@office365-support.help>",
+        subject: "Mailbox full - verify now",
+        body: "Your mailbox will be deleted in 30 minutes unless verified.",
+        link: "https://office365-support.help/verify",
+        answer: "phish",
+        redFlag: "Threat language + suspicious support domain not official Microsoft."
+      },
+      {
+        from: "Friend <riya.personal@mail.com>",
+        subject: "Check this funny cat clip 😂",
+        body: "LOL this is wild. Open this short link and tell me.",
+        link: "http://bit.ly/47xZqP9",
+        answer: "phish",
+        redFlag: "Unexpected short link from personal account. Could be hijacked account."
+      },
+      {
+        from: "University IT <it-help@university.ac.in>",
+        subject: "MFA setup reminder",
+        body: "Please set up multi-factor authentication by Friday through the student portal.",
+        link: "https://sso.university.ac.in/mfa-setup",
+        answer: "safe",
+        redFlag: "Official domain and healthy security practice (MFA) with clear context."
+      }
+    ];
+
+    const state = {
+      hp: 100,
+      score: 0,
+      coins: 0,
+      correct: 0,
+      round: 0,
+      deck: shuffle([...scenarios]),
+      locked: false
+    };
+
+    const hpFill = document.getElementById("hpFill");
+    const hpText = document.getElementById("hpText");
+    const scoreText = document.getElementById("scoreText");
+    const roundText = document.getElementById("roundText");
+    const correctText = document.getElementById("correctText");
+    const coinText = document.getElementById("coinText");
+    const feedback = document.getElementById("feedback");
+    const cybearFace = document.getElementById("cybearFace");
+    const log = document.getElementById("log");
+    const coinFx = document.getElementById("coinFx");
+
+    const mailCard = document.getElementById("mailCard");
+    const mailFrom = document.getElementById("mailFrom");
+    const mailSubject = document.getElementById("mailSubject");
+    const mailBody = document.getElementById("mailBody");
+    const mailLink = document.getElementById("mailLink");
+    const nextBtn = document.getElementById("nextBtn");
+    const bins = [...document.querySelectorAll(".bin")];
+
+    const safeBtn = document.getElementById("safeBtn");
+    const phishBtn = document.getElementById("phishBtn");
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function updateHUD() {
+      hpText.textContent = state.hp;
+      hpFill.style.width = `${state.hp}%`;
+      scoreText.textContent = state.score;
+      correctText.textContent = state.correct;
+      coinText.textContent = state.coins;
+      roundText.textContent = Math.min(state.round + 1, scenarios.length);
+    }
+
+    function logEntry(text, ok) {
+      const row = document.createElement("div");
+      row.className = `entry ${ok ? "ok" : "bad"}`;
+      row.textContent = text;
+      log.prepend(row);
+    }
+
+    function showCoin() {
+      coinFx.classList.remove("pop");
+      void coinFx.offsetWidth;
+      coinFx.classList.add("pop");
+    }
+
+    function currentScenario() {
+      return state.deck[state.round];
+    }
+
+    function renderCard() {
+      const item = currentScenario();
+      if (!item) return endGame();
+      mailFrom.textContent = item.from;
+      mailSubject.textContent = item.subject;
+      mailBody.textContent = item.body;
+      mailLink.textContent = item.link;
+      nextBtn.style.display = "none";
+      state.locked = false;
+      cybearFace.textContent = "🐻‍💻";
+      feedback.innerHTML = "Ranger, inspect each clue. No panic-clicking allowed in this forest.";
+      updateHUD();
+    }
+
+    function evaluate(choice) {
+      if (state.locked) return;
+      const item = currentScenario();
+      if (!item) return;
+      state.locked = true;
+      const ok = choice === item.answer;
+
+      if (ok) {
+        state.score += 10;
+        state.coins += 1;
+        state.correct += 1;
+        cybearFace.textContent = "🐻👍";
+        feedback.innerHTML = `Nice catch! You marked this <b>${choice.toUpperCase()}</b> correctly. 🪙`;
+        showCoin();
+        logEntry(`Round ${state.round + 1}: Correct. ${item.subject}`, true);
+      } else {
+        state.hp = Math.max(0, state.hp - 18);
+        state.score = Math.max(0, state.score - 3);
+        cybearFace.textContent = "🐻🛑";
+        feedback.innerHTML = `Oops, that one was <b>${item.answer.toUpperCase()}</b>.<small>Red Flag: ${item.redFlag}</small>`;
+        logEntry(`Round ${state.round + 1}: Wrong. Red Flag: ${item.redFlag}`, false);
+      }
+
+      updateHUD();
+      nextBtn.style.display = "block";
+
+      if (state.hp === 0) {
+        feedback.innerHTML = "Shield drained! Cy-Bear says: take a short break, then train again stronger. 🌲";
+        endGame();
+      }
+    }
+
+    function endGame() {
+      state.locked = true;
+      mailCard.style.opacity = "0.45";
+      nextBtn.style.display = "none";
+      const grade = state.correct >= 9 ? "Legend Ranger" : state.correct >= 7 ? "Sharp Scout" : state.correct >= 5 ? "Learning Guardian" : "Curious Cub";
+      feedback.innerHTML = `Game complete! <b>${grade}</b><small>Final Score: ${state.score} | Correct: ${state.correct}/10 | Coins: ${state.coins}</small>`;
+      cybearFace.textContent = "🐻🏕️";
+      const replay = document.createElement("button");
+      replay.className = "btn-next";
+      replay.style.display = "block";
+      replay.textContent = "Play Again";
+      replay.onclick = () => location.reload();
+      feedback.appendChild(document.createElement("br"));
+      feedback.appendChild(replay);
+    }
+
+    mailCard.addEventListener("dragstart", () => {
+      if (state.locked) return;
+      mailCard.classList.add("dragging");
+    });
+    mailCard.addEventListener("dragend", () => mailCard.classList.remove("dragging"));
+
+    bins.forEach((bin) => {
+      bin.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        if (!state.locked) bin.classList.add("over");
+      });
+      bin.addEventListener("dragleave", () => bin.classList.remove("over"));
+      bin.addEventListener("drop", (e) => {
+        e.preventDefault();
+        bin.classList.remove("over");
+        evaluate(bin.dataset.choice);
+      });
+    });
+
+    safeBtn.addEventListener("click", () => evaluate("safe"));
+    phishBtn.addEventListener("click", () => evaluate("phish"));
+    nextBtn.addEventListener("click", () => {
+      state.round += 1;
+      if (state.round >= scenarios.length || state.hp === 0) {
+        endGame();
+      } else {
+        renderCard();
+      }
+    });
+
+    renderCard();
+  </script>
+</body>
+</html>

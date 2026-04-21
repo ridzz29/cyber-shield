@@ -1,0 +1,7 @@
+{
+  "totalTimeSeconds": 90,
+  "questionsPerRun": 10,
+  "maxLives": 3,
+  "pointsCorrect": 120,
+  "pointsWrong": -40
+}

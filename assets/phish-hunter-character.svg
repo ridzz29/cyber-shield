@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+  <defs>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a57aff"/>
+      <stop offset="1" stop-color="#8f63e6"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d8f7ff"/>
+      <stop offset="1" stop-color="#bfe8ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- desk -->
+  <path d="M20 168h140v8H20z" fill="#d9d2bf" stroke="#2a1f3e" stroke-width="2"/>
+  <path d="M26 176h6v30h-6zM148 176h6v30h-6z" fill="#d9d2bf" stroke="#2a1f3e" stroke-width="2"/>
+
+  <!-- monitor -->
+  <g transform="translate(26 44)">
+    <rect x="0" y="0" width="110" height="70" rx="3" fill="url(#screen)" stroke="#2a1f3e" stroke-width="3"/>
+    <rect x="42" y="72" width="26" height="10" fill="#d4d0bf" stroke="#2a1f3e" stroke-width="2"/>
+    <rect x="34" y="82" width="42" height="5" fill="#ece8d8" stroke="#2a1f3e" stroke-width="2"/>
+    <!-- phishing warning shield -->
+    <path d="M55 12l22 8v18c0 14-10 22-22 27-12-5-22-13-22-27V20z" fill="#f08aa0" stroke="#2a1f3e" stroke-width="3"/>
+    <rect x="52" y="24" width="6" height="20" rx="2" fill="#2a1f3e"/>
+    <circle cx="55" cy="50" r="3" fill="#2a1f3e"/>
+    <!-- tiny bugs -->
+    <circle cx="15" cy="18" r="3" fill="#93b777" stroke="#2a1f3e" stroke-width="1.5"/>
+    <circle cx="97" cy="18" r="3" fill="#93b777" stroke="#2a1f3e" stroke-width="1.5"/>
+    <circle cx="13" cy="52" r="3" fill="#93b777" stroke="#2a1f3e" stroke-width="1.5"/>
+    <circle cx="99" cy="52" r="3" fill="#93b777" stroke="#2a1f3e" stroke-width="1.5"/>
+  </g>
+
+  <!-- keyboard -->
+  <g transform="translate(62 146)">
+    <rect x="0" y="0" width="56" height="18" rx="2" fill="#e7e2d4" stroke="#2a1f3e" stroke-width="2"/>
+    <g fill="#c6c0ae">
+      <rect x="6" y="4" width="6" height="3"/><rect x="14" y="4" width="6" height="3"/><rect x="22" y="4" width="6" height="3"/>
+      <rect x="30" y="4" width="6" height="3"/><rect x="38" y="4" width="6" height="3"/><rect x="46" y="4" width="4" height="3"/>
+      <rect x="6" y="9" width="6" height="3"/><rect x="14" y="9" width="6" height="3"/><rect x="22" y="9" width="16" height="3"/>
+      <rect x="40" y="9" width="10" height="3"/>
+    </g>
+  </g>
+
+  <!-- person -->
+  <g transform="translate(120 54)">
+    <path d="M10 62c8-6 22-6 34-2 11 3 20 12 22 26v52H0V92c0-14 3-23 10-30z" fill="url(#shirt)" stroke="#2a1f3e" stroke-width="3"/>
+    <circle cx="30" cy="30" r="18" fill="#ffd9ae" stroke="#2a1f3e" stroke-width="3"/>
+    <path d="M14 24c4-14 24-18 36-8l3 6-2 5H12z" fill="#f3d37b" stroke="#2a1f3e" stroke-width="3"/>
+    <path d="M40 14h23l5 4v8H40z" fill="#1f7a75" stroke="#2a1f3e" stroke-width="3"/>
+    <path d="M66 22l10 4-1 4-11-4z" fill="#1f7a75" stroke="#2a1f3e" stroke-width="2"/>
+    <!-- hand near mouth -->
+    <path d="M24 45c3-2 8-2 11 0l7 16-10 5-11-7z" fill="#ffd9ae" stroke="#2a1f3e" stroke-width="3"/>
+  </g>
+</svg>

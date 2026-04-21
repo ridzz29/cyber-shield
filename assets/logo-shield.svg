@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Cyber-Shield Logo</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffba63"/>
+      <stop offset="100%" stop-color="#ff7a30"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#g)"/>
+  <path d="M32 16l14 5v11c0 9-6.2 14.8-14 18-7.8-3.2-14-9-14-18V21l14-5z" fill="#0b1748"/>
+  <path d="M32 22l8 2.8V32c0 5-3.4 8.5-8 10.6-4.6-2.1-8-5.6-8-10.6v-7.2L32 22z" fill="#d9e6ff"/>
+</svg>

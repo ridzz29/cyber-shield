@@ -115,6 +115,7 @@ const allowedGameKeys = new Set([
 ]);
 const usersTable = "users";
 const loginAuditTable = "login_audit";
+const analyzerLogsTable = "analyzer_logs";
 const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
 const disposableEmailDomains = new Set([
   "mailinator.com",
@@ -507,6 +508,34 @@ async function ensureAnalysisHistoryTable() {
   await pool.query(createSql);
 }
 
+let ensureAnalyzerLogsTablePromise = null;
+
+function ensureAnalyzerLogsTable() {
+  if (!ensureAnalyzerLogsTablePromise) {
+    const createSql = `
+      CREATE TABLE IF NOT EXISTS \`${analyzerLogsTable}\` (
+        id VARCHAR(32) PRIMARY KEY,
+        timestamp VARCHAR(40) NOT NULL,
+        type VARCHAR(16) NOT NULL,
+        origin VARCHAR(32) NOT NULL DEFAULT 'website',
+        user_name VARCHAR(120),
+        user_email VARCHAR(190) NOT NULL,
+        details LONGTEXT NOT NULL,
+        risk_score INT NULL,
+        safe_score INT NULL,
+        confidence INT NULL,
+        risk_level VARCHAR(16) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_analyzer_logs_timestamp (timestamp),
+        INDEX idx_analyzer_logs_type (type),
+        INDEX idx_analyzer_logs_user_email (user_email)
+      )
+    `;
+    ensureAnalyzerLogsTablePromise = pool.query(createSql).then(() => undefined);
+  }
+  return ensureAnalyzerLogsTablePromise;
+}
+
 async function saveAnalysisHistory(type, inputData, result, riskScore) {
   await pool.query(
     `INSERT INTO analysis_history (type, input_data, result, risk_score)
@@ -550,14 +579,32 @@ function generateLogId() {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
 
-async function readAnalyzerLogs() {
+function normalizeAnalyzerLogEntry(entry = {}) {
+  const riskLevelRaw = String(entry.risk_level ?? entry.riskLevel ?? "").trim().toLowerCase();
+  const riskLevel = ["low", "medium", "high"].includes(riskLevelRaw) ? riskLevelRaw : riskLevelRaw.slice(0, 16);
+  return {
+    id: String(entry.id || generateLogId()).slice(0, 32),
+    timestamp: String(entry.timestamp || new Date().toISOString()).slice(0, 40),
+    type: String(entry.type || "").trim().toLowerCase(),
+    origin: normalizeAnalyzerOrigin(entry.origin),
+    user_name: String(entry.user_name ?? entry.userName ?? "Unknown").trim().slice(0, 120) || "Unknown",
+    user_email: normalizeUserEmail(entry.user_email ?? entry.userEmail ?? "guest@local").slice(0, 190),
+    details: String(entry.details || "").trim(),
+    risk_score: normalizePercent(entry.risk_score ?? entry.riskScore),
+    safe_score: normalizePercent(entry.safe_score ?? entry.safeScore),
+    confidence: normalizePercent(entry.confidence),
+    risk_level: riskLevel
+  };
+}
+
+async function readAnalyzerLogsFromFile() {
   const raw = await fs.readFile(analyzerJsonPath, "utf8");
   const parsed = JSON.parse(raw);
   if (!Array.isArray(parsed)) return [];
-  return parsed;
+  return parsed.map((entry) => normalizeAnalyzerLogEntry(entry));
 }
 
-async function writeAnalyzerLogs(logs) {
+async function writeAnalyzerLogFiles(logs) {
   await fs.writeFile(analyzerJsonPath, JSON.stringify(logs), "utf8");
   const lines = logs.map((entry) => [
     entry.timestamp,
@@ -573,6 +620,97 @@ async function writeAnalyzerLogs(logs) {
   ].map(csvEscape).join(","));
   const content = analyzerCsvHeader + (lines.length ? `${lines.join("\n")}\n` : "");
   await fs.writeFile(analyzerCsvPath, content, "utf8");
+}
+
+async function readAnalyzerLogsFromDb() {
+  await ensureAnalyzerLogsTable();
+  const [rows] = await pool.query(
+    `SELECT id, timestamp, type, origin, user_name, user_email, details, risk_score, safe_score, confidence, risk_level
+     FROM \`${analyzerLogsTable}\`
+     ORDER BY timestamp ASC, created_at ASC, id ASC`
+  );
+  return (rows || []).map((row) => normalizeAnalyzerLogEntry(row));
+}
+
+async function syncAnalyzerLogFilesSafe(logs = null) {
+  try {
+    const nextLogs = Array.isArray(logs) ? logs.map((entry) => normalizeAnalyzerLogEntry(entry)) : await readAnalyzerLogsFromDb();
+    await writeAnalyzerLogFiles(nextLogs);
+  } catch (err) {
+    console.error("analyzer log file sync failed:", err.code || "UNKNOWN", err.message || "");
+  }
+}
+
+async function readAnalyzerLogs() {
+  try {
+    return await readAnalyzerLogsFromDb();
+  } catch (err) {
+    console.error("analyzer log DB read failed, falling back to file:", err.code || "UNKNOWN", err.message || "");
+    return readAnalyzerLogsFromFile();
+  }
+}
+
+async function writeAnalyzerLogs(logs) {
+  const normalized = Array.isArray(logs) ? logs.map((entry) => normalizeAnalyzerLogEntry(entry)) : [];
+  await ensureAnalyzerLogsTable();
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query(`DELETE FROM \`${analyzerLogsTable}\``);
+    if (normalized.length > 0) {
+      const values = normalized.map((entry) => [
+        entry.id,
+        entry.timestamp,
+        entry.type,
+        entry.origin,
+        entry.user_name,
+        entry.user_email,
+        entry.details,
+        entry.risk_score,
+        entry.safe_score,
+        entry.confidence,
+        entry.risk_level || null
+      ]);
+      await conn.query(
+        `INSERT INTO \`${analyzerLogsTable}\`
+        (id, timestamp, type, origin, user_name, user_email, details, risk_score, safe_score, confidence, risk_level)
+        VALUES ?`,
+        [values]
+      );
+    }
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+  await syncAnalyzerLogFilesSafe(normalized);
+}
+
+async function appendAnalyzerLog(entry) {
+  const normalized = normalizeAnalyzerLogEntry(entry);
+  await ensureAnalyzerLogsTable();
+  await pool.query(
+    `INSERT INTO \`${analyzerLogsTable}\`
+    (id, timestamp, type, origin, user_name, user_email, details, risk_score, safe_score, confidence, risk_level)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      normalized.id,
+      normalized.timestamp,
+      normalized.type,
+      normalized.origin,
+      normalized.user_name,
+      normalized.user_email,
+      normalized.details,
+      normalized.risk_score,
+      normalized.safe_score,
+      normalized.confidence,
+      normalized.risk_level || null
+    ]
+  );
+  await syncAnalyzerLogFilesSafe();
+  return normalized;
 }
 
 function normalizeUserEmail(email) {
@@ -3685,23 +3823,16 @@ async function ensureAnalyzerLogFile() {
   }
 
   try {
-    const logs = await readAnalyzerLogs();
-    let changed = false;
-    const normalized = logs.map((entry) => {
-      const next = { ...entry };
-      if (!next.id) {
-        next.id = generateLogId();
-        changed = true;
-      }
-      if (!next.origin) {
-        next.origin = "website";
-        changed = true;
-      }
-      return next;
-    });
-    if (changed) {
-      await writeAnalyzerLogs(normalized);
+    await ensureAnalyzerLogsTable();
+    const fileLogs = await readAnalyzerLogsFromFile().catch(() => []);
+    const dbLogs = await readAnalyzerLogsFromDb().catch(() => []);
+
+    if (dbLogs.length === 0 && fileLogs.length > 0) {
+      await writeAnalyzerLogs(fileLogs);
+      return;
     }
+
+    await syncAnalyzerLogFilesSafe(dbLogs);
   } catch {
     await fs.writeFile(analyzerJsonPath, "[]", "utf8");
     await fs.writeFile(analyzerCsvPath, analyzerCsvHeader, "utf8");
@@ -5578,8 +5709,7 @@ app.post("/api/analyzer-log", async (req, res) => {
     }
 
     const timestamp = new Date().toISOString();
-    const logs = await readAnalyzerLogs();
-    logs.push({
+    await appendAnalyzerLog({
       id: generateLogId(),
       timestamp,
       type,
@@ -5592,7 +5722,6 @@ app.post("/api/analyzer-log", async (req, res) => {
       confidence,
       risk_level: riskLevel
     });
-    await writeAnalyzerLogs(logs);
     return res.status(201).json({ message: "Analyzer data saved." });
   } catch (err) {
     return res.status(500).json({ message: "Failed to save analyzer data", detail: err.message });
@@ -5983,6 +6112,7 @@ ensureDatabaseExists()
   .then(() => Promise.all([
     ensureUsersTable(),
     ensureLoginAuditTable(),
+    ensureAnalyzerLogsTable(),
     ensureAnalyzerLogFile(),
     ensureAgentCaseFile(),
     ensureGameScoresTable(),
